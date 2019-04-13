@@ -40,16 +40,20 @@ $(document).ready(function(){
     var maxY=480;
 
     //create player
+    
     var man = new Shape('man', 40,40,400,10);
 
+    var numberOfBlobs = 5;
+    var collision = false;
     var intervalSpeed = 10;
-    var animationSpeed = 20;
-    var blobSpeed = 4.5;
-    var playerSpeed = 10;
-    var leftMarginLimit = maxX - parseInt($('#man').css('width'));
-    var topMarginLimit = maxY - parseInt($('#man').css('height'));
-    var leftMargin = parseInt($('#man').css('margin-left'));
-    var topMargin = parseInt($('#man').css('margin-top'));
+    var blobSpeed = 0.2;
+    var playerSpeed = 5;
+    var manWidth = parseFloat($('#man').css('width'));
+    var manHeight = parseFloat($('#man').css('height'));
+    var manXLimit = maxX - manWidth;
+    var manYLimit = maxY - manHeight;
+    var manX = parseFloat($('#man').css('margin-left'));
+    var manY = parseFloat($('#man').css('margin-top'));
 
     var keyStatus = {
         up: false,
@@ -57,12 +61,6 @@ $(document).ready(function(){
         left: false,
         right: false
     };
-
-    // function checkCollision(obj1, obj2) {
-    //     if (obj1.posX == obj2.posX) {
-
-    //     }
-    // }
 
     window.onkeydown = function(e) {
         e.preventDefault();
@@ -88,75 +86,127 @@ $(document).ready(function(){
     function runMovement() {
         // LEFT
         if (keyStatus.left){
-            leftMargin -=playerSpeed;
-            if (leftMargin < 0){leftMargin = 0;}
-            if (leftMargin > leftMarginLimit){leftMargin = leftMarginLimit;}
+            manX -=playerSpeed;
+            if (manX < 0){manX = 0;}
+            if (manX > manXLimit){manX = manXLimit;}
         }
         
         // RIGHT
         if (keyStatus.right){
-            leftMargin +=playerSpeed;
-            if (leftMargin < 0){leftMargin = 0;}
-            if (leftMargin > leftMarginLimit){leftMargin = leftMarginLimit;}
+            manX +=playerSpeed;
+            if (manX < 0){manX = 0;}
+            if (manX > manXLimit){manX = manXLimit;}
         }
         
         // UP
         if (keyStatus.up){
-            topMargin -=playerSpeed;
-            if (topMargin < 0){topMargin = 0;}
-            if (topMargin > topMarginLimit){topMargin = topMarginLimit;}
+            manY -=playerSpeed;
+            if (manY < 0){manY = 0;}
+            if (manY > manYLimit){manY = manYLimit;}
         }
         
         // DOWN
         if (keyStatus.down){
-            topMargin +=playerSpeed;
-            if (topMargin < 0){topMargin = 0;}
-            if (topMargin > topMarginLimit){topMargin = topMarginLimit;}
+            manY +=playerSpeed;
+            if (manY < 0){manY = 0;}
+            if (manY > manYLimit){manY = manYLimit;}
         }
 
-
-        $('#man').css({'margin-left': leftMargin+'px','margin-top': topMargin+'px'});
+        checkCollision();
+        
     }
     var blobArray = [];
 
     function createBlobs() {
-        
-        for (i = 0; i < 5; i++) { 
-            blobArray[i] = new Shape('blob' + i, 40,40,100+60*i,10);
+        for (i = 0; i < numberOfBlobs; i++) { 
+            blobArray[i] = new Shape('blob' + i, 30,30,100+60*i,10);
         }
-        
     }
 
+    function checkCollision()  {
+        if (collision == true) {
+            manX = 0;
+            manY = 0;
 
+            collision = false;
+        } else {
+        }
+        $('#man').css({'margin-left': manX+'px','margin-top': manY+'px'});
+    }
 
     function moveBlobs() {
-        var blobPosX = 0;
-        var blobPosY = 0;
+        var blobPosX = 0.0;
+        var blobPosY = 0.0;
 
-        for (i = 0; i < 5; i++) {
-            blobPosX = parseInt($('#blob'+i).css('margin-left'));
-            blobPosY = parseInt($('#blob'+i).css('margin-top'));
+        for (i = 0; i < numberOfBlobs; i++) {
+            blobWidth = parseFloat($('#blob'+i).css('width'));
+            blobHeight = parseFloat($('#blob'+i).css('height'));
+            blobPosX = parseFloat($('#blob'+i).css('margin-left'));
+            blobPosY = parseFloat($('#blob'+i).css('margin-top'));
             blobPosY += blobSpeed;
+
             $('#blob'+i).css({
                 'margin-top': blobPosY+'px',
                 'margin-left': blobPosX+'px'
             });
 
-            if (blobPosX > maxX - parseInt($('#blob'+i).width())) {
+            if (blobPosX > maxX - parseFloat($('#blob'+i).width())) {
                 $('#blob'+i).css({
                     'margin-left': -10+'px'
                 });
             }
 
-            if (blobPosY > maxY - parseInt($('#blob'+i).height())) {
+            if (blobPosY > maxY - parseFloat($('#blob'+i).height())) {
                 $('#blob'+i).css({
                     'margin-top': -10+'px'
                 });
             }
+
+            if (
+                blobPosX+blobWidth >= manX && blobPosX <= manX &&
+                blobPosY+blobHeight >= manY && blobPosY <= manY
+            ||
+                blobPosX+blobWidth >= manX+manWidth && blobPosX <= manX+manWidth &&
+                blobPosY+blobHeight >= manY && blobPosY <= manY
+            ||
+                blobPosX+blobWidth >= manX && blobPosX <= manX &&
+                blobPosY+blobHeight >= manY+manHeight && blobPosY <= manY+manHeight
+            ||
+                blobPosX+blobWidth >= manX+manWidth && blobPosX <= manX+manWidth &&
+                blobPosY+blobHeight >= manY+manHeight && blobPosY <= manY+manHeight
+                
+                
+            ||
+                manX+manWidth >= blobPosX && manX <= blobPosX &&
+                manY+manHeight >= blobPosY && manY <= blobPosY
+            ||
+                manX+manWidth >= blobPosX+blobWidth && manX <= blobPosX+blobWidth &&
+                manY+manHeight >= blobPosY && manY <= blobPosY
+            ||
+                manX+manWidth >= blobPosX && manX <= blobPosX &&
+                manY+manHeight >= blobPosY+blobHeight && manY <= blobPosY+blobHeight
+            ||
+                manX+manWidth >= blobPosX+blobWidth && manX <= blobPosX+blobWidth &&
+                manY+manHeight >= blobPosY+blobHeight && manY <= blobPosY+blobHeight
+                
+            )
+            {
+                collision = true;
+            }
         }
 
-        
     }
+
+    function counter() {
+        var d1 = 1.3;
+        var add = 0.1;
+
+        var d2 = d1 + add;
+
+        console.log(d2.toFixed(1));
+    }
+
+    counter();
 
     function gameStart() {
         var canvas = document.createElement('canvas');
@@ -177,8 +227,7 @@ $(document).ready(function(){
         
         console.log(cursorLayer);
         
-        // below is optional
-        
+        // background shapes
         var ctx = canvas.getContext("2d");
         ctx.fillStyle = "rgba(255, 0, 0, 0.2)";
         ctx.fillRect(100, 100, 200, 200);

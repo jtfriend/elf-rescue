@@ -15,73 +15,35 @@ class Shape {
         
         var canvas = document.createElement('canvas');
 
+
         canvas.id = objId;
         canvas.width = width;
         canvas.height = height;
-        canvas.style.marginLeft = posX;
-        canvas.style.marginTop = posY;
+        canvas.style.x = posX;
+        canvas.style.y = posY;
         canvas.style.zIndex = 8;
         canvas.style.position = "absolute";
         canvas.style.border = "1px solid";
 
+        var ctx = canvas.getContext('2d');
+
+
+
+
+        var img = new Image();
+        img.onload = function() {
+        ctx.drawImage(img, 0, 0);
+        };
+        img.src = 'man.png';
+
         var body = document.getElementsByTagName("body")[0];
 
         body.appendChild(canvas);
-
-        
     }
 
 }
 
-$(document).ready(function(){
-
-    //set dimensions of screen
-    var maxX=640;
-    var maxY=480;
-
-    //create player
-    
-    var man = new Shape('man', 40,40,400,10);
-
-    var numberOfBlobs = 5;
-    var collision = false;
-    var intervalSpeed = 10;
-    var blobSpeed = 0.2;
-    var playerSpeed = 5;
-    var manWidth = parseFloat($('#man').css('width'));
-    var manHeight = parseFloat($('#man').css('height'));
-    var manXLimit = maxX - manWidth;
-    var manYLimit = maxY - manHeight;
-    var manX = parseFloat($('#man').css('margin-left'));
-    var manY = parseFloat($('#man').css('margin-top'));
-
-    var keyStatus = {
-        up: false,
-        down: false,
-        left: false,
-        right: false
-    };
-
-    window.onkeydown = function(e) {
-        e.preventDefault();
-
-        if      (e.keyCode === 37) keyStatus.left = true;
-        else if (e.keyCode === 38) keyStatus.up = true; 
-        else if (e.keyCode === 39) keyStatus.right = true;
-        else if (e.keyCode === 40) keyStatus.down = true;
-    };
-
-    window.onkeyup = function(e) {
-        e.preventDefault();
-
-        if      (e.keyCode === 37) keyStatus.left = false;
-        else if (e.keyCode === 38) keyStatus.up = false;
-        else if (e.keyCode === 39) keyStatus.right = false;
-        else if (e.keyCode === 40) keyStatus.down = false;
-    };
-
-
-    setInterval(runMovement,intervalSpeed);
+// $(document).ready(function(){
 
     function runMovement() {
         // LEFT
@@ -134,9 +96,28 @@ $(document).ready(function(){
         $('#man').css({'margin-left': manX+'px','margin-top': manY+'px'});
     }
 
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
+
     function moveBlobs() {
-        var blobPosX = 0.0;
-        var blobPosY = 0.0;
+        var blobPosX = new Array(numberOfBlobs);
+        var blobPosY = new Array(numberOfBlobs);
+
+        for (i = 0; i < numberOfBlobs; i++) {
+            blobPosX[i] = getRandomInt(100);
+            blobPosX[i] = getRandomInt(100);
+        }
+
+        for (i = 0; i < numberOfBlobs; i++) {
+            blobPosX = parseFloat($('#blob'+i).css('margin-left'));
+            blobPosY = parseFloat($('#blob'+i).css('margin-top'));
+            $('#blob'+i).css({
+                'margin-top': blobPosY+'px',
+                'margin-left': 100+60*i+'px'
+            });
+        }
+
 
         for (i = 0; i < numberOfBlobs; i++) {
             blobWidth = parseFloat($('#blob'+i).css('width'));
@@ -197,17 +178,6 @@ $(document).ready(function(){
 
     }
 
-    function counter() {
-        var d1 = 1.3;
-        var add = 0.1;
-
-        var d2 = d1 + add;
-
-        console.log(d2.toFixed(1));
-    }
-
-    counter();
-
     function gameStart() {
         var canvas = document.createElement('canvas');
 
@@ -237,8 +207,58 @@ $(document).ready(function(){
         ctx.fillRect(200, 50, 200, 200);
     }
 
-    gameStart();
-    createBlobs();
-    setInterval(moveBlobs, 10);
-});
+    function main() {
+        //set dimensions of screen
+        maxX=640;
+        maxY=480;
+
+        //create player
+        new Shape('man', 40,40,400,10);
+
+        numberOfBlobs = 5;
+        collision = false;
+        intervalSpeed = 10;
+        blobSpeed = 0.2;
+        playerSpeed = 5;
+        manWidth = parseFloat($('#man').css('width'));
+        manHeight = parseFloat($('#man').css('height'));
+        manXLimit = maxX - manWidth;
+        manYLimit = maxY - manHeight;
+        manX = parseFloat($('#man').css('margin-left'));
+        manY = parseFloat($('#man').css('margin-top'));
+
+        keyStatus = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
+        };
+
+        window.onkeyup = function(e) {
+            e.preventDefault();
+    
+            if      (e.keyCode === 37) keyStatus.left = false;
+            else if (e.keyCode === 38) keyStatus.up = false;
+            else if (e.keyCode === 39) keyStatus.right = false;
+            else if (e.keyCode === 40) keyStatus.down = false;
+        };
+    
+        window.onkeydown = function(e) {
+            e.preventDefault();
+    
+            if      (e.keyCode === 37) keyStatus.left = true;
+            else if (e.keyCode === 38) keyStatus.up = true; 
+            else if (e.keyCode === 39) keyStatus.right = true;
+            else if (e.keyCode === 40) keyStatus.down = true;
+        };
+
+        setInterval(runMovement,intervalSpeed);
+        gameStart();
+        createBlobs();
+        setInterval(moveBlobs, 10);
+    }
+
+    // main();
+
+// });
 

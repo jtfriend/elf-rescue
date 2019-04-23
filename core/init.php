@@ -1,0 +1,28 @@
+<?php
+
+//stock function for session setup
+session_start();
+
+$GLOBALS['config'] = [
+    'mysql' => [
+        'host'  => '127.0.0.1',
+        'username'  => 'root',
+        'password'  => 'password',
+        'db'  => 'elf_rescue',
+    ],
+    'remember'  => [
+        'cookie_name'   => 'hash',
+        'cookie_expiry' => 604800,
+    ],
+    'session' => [
+        'session_name' => 'user',
+        'token_name'   => 'token',
+    ],
+];
+
+spl_autoload_register(function($class) {
+    require_once 'classes/' . $class . '.php';
+});
+
+
+?>

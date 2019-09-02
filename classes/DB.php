@@ -46,7 +46,7 @@ class DB {
 
     public function action($action, $table, $where = []) {
         if(count($where) == 3) {
-            $operators = ['=', '>', '<', '>=', '<='];
+            $operators = ['=', '>', '<', '>=', '<=', '!='];
 
             $field      = $where[0];
             $operator   = $where[1];
@@ -66,6 +66,10 @@ class DB {
 
     public function get($table, $where) {
         return $this->action('SELECT *', $table, $where);
+    }
+
+    public function getMax($table, $where) {
+        return $this->action('SELECT MAX('.$where[0].')',$table,$where);
     }
 
     public function getAllFromTable($table, $orderField) {

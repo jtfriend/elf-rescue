@@ -7,7 +7,7 @@
             <form action="game.php" method="POST">
                 <div class="text-center">Name</div><br>
                 <div class="center text-center">
-                    <input class="text-center" type="text" name="name">
+                    <input style="width:50%;" class="text-center" type="text" name="name">
                 </div>
                 <br>
                 <div class="center text-center" >
@@ -15,9 +15,28 @@
                 </div>
             </form> 
         </div>
+        <div>
+            <table style="width:100%"> 
+                <?php
+                    require_once 'core/init.php';
+                    $db = new DB();
+                    $allData = $db->getAllFromTable("users", "u_id");
+                ?>
+                <tr style="text-align:center;">
+                    <th>Existing Users</th> 
+                </tr>
+                <?php foreach ($allData->_results as $user) { ?>
+                <tr style="text-align:center;">
+                    <td><?php echo $user->u_name; ?></td> 
+                </tr>
+                <?php } ?>
+            </table>
+        </div>
+        <table style="width:100%">
+            
+        </table>
     </body>
 </html>
-
 
 <style>
     #system-background {

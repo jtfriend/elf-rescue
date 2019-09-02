@@ -8,8 +8,8 @@ class Shape {
     speed = 0.2;
     constructor(objId, height, width, posX, posY, imageName) {
         this.objId = objId;
-        this.height = height;
-        this.width = width;
+        this.height = parseFloat(height);
+        this.width = parseFloat(width);
         this.posX = parseFloat(posX);
         this.posY = parseFloat(posY);
         
@@ -37,6 +37,10 @@ class Shape {
         body.appendChild(canvas);
     }
 
+    setCoords(posX, posY) {
+        this.posX = posX;
+        this.posY = posY;
+    }
 }
 
 // $(document).ready(function(){
@@ -70,7 +74,13 @@ class Shape {
             if (manY > manYLimit){manY = manYLimit;}
         }
 
-        checkCollision();
+        if (death == 0) {
+            checkCollision();
+            man.setCoords(manX, manY);
+        } else {
+            end = 1;
+        }
+
         
     }
     var blobArray = [];
@@ -93,11 +103,21 @@ class Shape {
         }
     }
 
+    function createTarget() {
+        target = new Shape(
+            'target',
+            30,
+            30,
+            safetyColumnWidth+10+blobColumn*i+randomVariance,
+            -20 -randomVariance*10,
+            'target'
+        );
+    }
+
     function checkCollision()  {
         if (collision == true) {
             if(lives.getLives() == 1) {
                 death = 1;
-                console.log("test");
                 collision = false;
             } else {
                 manX = 2;
@@ -116,6 +136,88 @@ class Shape {
         return Math.floor(Math.random() * Math.floor(max));
     }
 
+    function checkForCollisionBetween (objA, objB) {
+        // console.log(objA.posX+objA.width);
+        // console.log(objB.posX);
+
+        collision = (objA, objB) => {
+			let isWithinX = (objB.x + objB.width) > objA.x && objB.x < (objA.x + objA.width)
+            let isWithinY = (objB.y + objB.height) > objA.y && objB.y < (objA.y + objA.height)
+            console.log(isWithinX);
+			
+			return isWithinX && isWithinY
+		}
+        // console.log(collision);
+
+        if (
+            objA.posX+objA.width >= objB.posX && objA.posX <= objB.posX &&
+            objA.posY+objA.height >= objB.posY && objA.posY <= objB.posY
+        ||
+            objA.posX+objA.width >= objB.posX+objB.width && objA.posX <= objB.posX+objB.width &&
+            objA.posY+objA.height >= objB.posY && objA.posY <= objB.posY
+        ||
+            objA.posX+objA.width >= objB.posX && objA.posX <= objB.posX &&
+            objA.posY+objA.height >= objB.posY+objB.height && objA.posY <= objB.posY+objB.height
+        ||
+            objA.posX+objA.width >= objB.posX+objB.width && objA.posX <= objB.posX+objB.width &&
+            objA.posY+objA.height >= objB.posY+objB.height && objA.posY <= objB.posY+objB.height
+        ||
+            objB.posX+objB.width >= objA.posX && objB.posX <= objA.posX &&
+            objB.posY+objB.height >= objA.posY && objB.posY <= objA.posY
+        ||
+            objB.posX+objB.width >= objA.posX+objA.width && objB.posX <= objA.posX+objA.width &&
+            objB.posY+objB.height >= objA.posY && objB.posY <= objA.posY
+        ||
+            objB.posX+objB.width >= objA.posX && objB.posX <= objA.posX &&
+            objB.posY+objB.height >= objA.posY+objA.height && objB.posY <= objA.posY+objA.height
+        ||
+            objB.posX+objB.width >= objA.posX+objA.width && objB.posX <= objA.posX+objA.width &&
+            objB.posY+objB.height >= objA.posY+objA.height && objB.posY <= objA.posY+objA.height
+        )
+        {
+            console.log("collision");
+            return true;
+
+        } else {
+            console.log("no coll");
+            return false;
+        }
+
+        if(
+                blobPosX+blobWidth >= manX && blobPosX <= manX &&
+                blobPosY+blobHeight >= manY && blobPosY <= manY
+            ||
+                blobPosX+blobWidth >= manX+manWidth && blobPosX <= manX+manWidth &&
+                blobPosY+blobHeight >= manY && blobPosY <= manY
+            ||
+                blobPosX+blobWidth >= manX && blobPosX <= manX &&
+                blobPosY+blobHeight >= manY+manHeight && blobPosY <= manY+manHeight
+            ||
+                blobPosX+blobWidth >= manX+manWidth && blobPosX <= manX+manWidth &&
+                blobPosY+blobHeight >= manY+manHeight && blobPosY <= manY+manHeight
+            ||
+                manX+manWidth >= blobPosX && manX <= blobPosX &&
+                manY+manHeight >= blobPosY && manY <= blobPosY
+            ||
+                manX+manWidth >= blobPosX+blobWidth && manX <= blobPosX+blobWidth &&
+                manY+manHeight >= blobPosY && manY <= blobPosY
+            ||
+                manX+manWidth >= blobPosX && manX <= blobPosX &&
+                manY+manHeight >= blobPosY+blobHeight && manY <= blobPosY+blobHeight
+            ||
+                manX+manWidth >= blobPosX+blobWidth && manX <= blobPosX+blobWidth &&
+                manY+manHeight >= blobPosY+blobHeight && manY <= blobPosY+blobHeight
+        ) {
+            console.log('blah');
+        }
+
+
+
+ 
+
+
+    }
+
     function moveBlobs() {
 
         for (i = 0; i < numberOfBlobs; i++) {
@@ -124,6 +226,7 @@ class Shape {
             blobHeight = parseFloat($('#blob'+i).css('height'));
             blobPosX = parseFloat($('#blob'+i).css('margin-left'));
             blobPosY = parseFloat($('#blob'+i).css('margin-top'));
+            blobArray[i].setCoords(blobPosX, blobPosY);
             blobPosY += blobSpeed;
 
             $('#blob'+i).css({
@@ -143,35 +246,45 @@ class Shape {
                 });
             }
 
-            if (
-                blobPosX+blobWidth >= manX && blobPosX <= manX &&
-                blobPosY+blobHeight >= manY && blobPosY <= manY
-            ||
-                blobPosX+blobWidth >= manX+manWidth && blobPosX <= manX+manWidth &&
-                blobPosY+blobHeight >= manY && blobPosY <= manY
-            ||
-                blobPosX+blobWidth >= manX && blobPosX <= manX &&
-                blobPosY+blobHeight >= manY+manHeight && blobPosY <= manY+manHeight
-            ||
-                blobPosX+blobWidth >= manX+manWidth && blobPosX <= manX+manWidth &&
-                blobPosY+blobHeight >= manY+manHeight && blobPosY <= manY+manHeight
-            ||
-                manX+manWidth >= blobPosX && manX <= blobPosX &&
-                manY+manHeight >= blobPosY && manY <= blobPosY
-            ||
-                manX+manWidth >= blobPosX+blobWidth && manX <= blobPosX+blobWidth &&
-                manY+manHeight >= blobPosY && manY <= blobPosY
-            ||
-                manX+manWidth >= blobPosX && manX <= blobPosX &&
-                manY+manHeight >= blobPosY+blobHeight && manY <= blobPosY+blobHeight
-            ||
-                manX+manWidth >= blobPosX+blobWidth && manX <= blobPosX+blobWidth &&
-                manY+manHeight >= blobPosY+blobHeight && manY <= blobPosY+blobHeight
-            )
-            {
-                collision = true;
-            }
+            // console.log(blobArray[0].posY);
+            
+
+            // if (
+            //     blobArray[i].posX+blobWidth >= man.posX && blobPosX <= manX &&
+            //     blobPosY+blobHeight >= manY && blobPosY <= manY
+            // ||
+            //     blobPosX+blobWidth >= manX+manWidth && blobPosX <= manX+manWidth &&
+            //     blobPosY+blobHeight >= manY && blobPosY <= manY
+            // ||
+            //     blobPosX+blobWidth >= manX && blobPosX <= manX &&
+            //     blobPosY+blobHeight >= manY+manHeight && blobPosY <= manY+manHeight
+            // ||
+            //     blobPosX+blobWidth >= manX+manWidth && blobPosX <= manX+manWidth &&
+            //     blobPosY+blobHeight >= manY+manHeight && blobPosY <= manY+manHeight
+            // ||
+            //     manX+manWidth >= blobPosX && manX <= blobPosX &&
+            //     manY+manHeight >= blobPosY && manY <= blobPosY
+            // ||
+            //     manX+manWidth >= blobPosX+blobWidth && manX <= blobPosX+blobWidth &&
+            //     manY+manHeight >= blobPosY && manY <= blobPosY
+            // ||
+            //     manX+manWidth >= blobPosX && manX <= blobPosX &&
+            //     manY+manHeight >= blobPosY+blobHeight && manY <= blobPosY+blobHeight
+            // ||
+            //     manX+manWidth >= blobPosX+blobWidth && manX <= blobPosX+blobWidth &&
+            //     manY+manHeight >= blobPosY+blobHeight && manY <= blobPosY+blobHeight
+            // )
+            // {
+            //     collision = true;
+            // }
+
+            collision = checkForCollisionBetween(blobArray[i], man);
         }
+
+        $('#target').css({
+            'margin-top': '100px',
+            'margin-left': '100px'
+        });
 
     }
 
@@ -194,7 +307,7 @@ class Shape {
 
     class WordValue {
         score =0;
-        lives= 2;
+        lives= 500;
         highscore
 
         constructor (word, value, posX) {
@@ -273,7 +386,29 @@ class Shape {
 
         new Bar ('green');
         score = new WordValue ('score', 0, 0);
-        lives = new WordValue ('lives', 2, 100);
+        lives = new WordValue ('lives', 2, 560);
+
+        var div = document.createElement('div');
+        var bar = document.getElementById("score-bar");
+
+        div.id = "name";
+        div.style.width = "640";
+        div.style.height = 25;
+        div.style.zIndex = 10;
+        div.style.position = "absolute";
+        div.style.top = "0px";
+        div.style.margin = "0px";
+        div.style.marginTop = "0px";
+        div.style.marginLeft = 0 + "px";
+        div.style.fontFamily = "sans-serif";
+        div.style.textAlign = "center";
+        div.style.lineHeight = 1.5;
+        div.style.color = "orange";
+        div.textContent = postData;
+
+        bar.appendChild(div);
+
+        
 
         var canvas = document.createElement('canvas');
 
@@ -302,10 +437,14 @@ class Shape {
     }
 
     function endGame() {
-        // $('#man, #background, #score-bar, #matrix').css({
-        //     display:'none'
-        // });
-        // console.log('death');
+        stillDiv('man');
+    }
+
+    function stillDiv(id) {
+        $('#'+id).css({
+            marginLeft: $('#'+id).css('margin-left'),
+            marginTop: $('#'+id).css('margin-top')
+        });
     }
 
     function main() {
@@ -322,7 +461,8 @@ class Shape {
 
         //create player
         man = new Shape('man', 40,40,2,25, 'man');
-
+        death = 0;
+        end = 0;
         numberOfBlobs = 8;
         collision = false;
         intervalSpeed = 10;
@@ -331,11 +471,12 @@ class Shape {
         manWidth = parseFloat($('#man').css('width'));
         manHeight = parseFloat($('#man').css('height'));
         manXLimit = maxX - manWidth + 1;
-        manYLimit = maxY - manHeight+26;
+        manYLimit = maxY - manHeight + 26;
         minYLimit = 25;
         minXLimit = 2;
         manX = parseFloat($('#man').css('margin-left'));
         manY = parseFloat($('#man').css('margin-top'));
+
 
         safetyColumnWidth = 50;
         totalWidth = maxX;
@@ -370,11 +511,16 @@ class Shape {
             else if (e.keyCode === 40) keyStatus.down = true;
         };
 
-        endGame();
         setInterval(runMovement,intervalSpeed);
         screenSetup();
         createBlobs();
+        createTarget();
         setInterval(moveBlobs, 10);
+
+        if (end == 1) {
+            lives.setLives('lives', lives.getLives()-1);
+            endGame();
+        }
     }
 
 

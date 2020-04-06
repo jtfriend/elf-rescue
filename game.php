@@ -48,6 +48,7 @@ if (isset($userExists->_results)) {
             's_userid' => $newUserId,
             's_value' => 0
         ]);
+        $test =2;
     }
 }
 
